@@ -447,7 +447,7 @@
       @media print {
         @page {
           size: A4 portrait;
-          margin: 5mm;
+          margin: 0; /* Zera a margem do sistema para matar o cabeçalho/rodapé do Android */
         }
 
         html,
@@ -456,6 +456,8 @@
           margin: 0 !important;
           padding: 0 !important;
           width: 100% !important;
+          height: 100% !important; /* Trava altura máxima */
+          overflow: hidden !important; /* CORTA qualquer pixel que tente criar a página 2 */
         }
 
         .container {
@@ -478,15 +480,17 @@
 
         .laudo-wrapper {
           width: 100%;
-          /* O segredo: a altura do wrapper é 96% do tamanho da página física. 
-                   Deixamos 4% livres para o Android colocar cabeçalhos sem quebrar de página. */
-          height: 96vh;
+          /* A folha A4 tem 297mm. Cravamos em 295mm e usamos padding para simular a margem */
+          height: 295mm;
+          padding: 8mm; /* Margem de segurança interna para não cortar na borda da folha */
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
+          overflow: hidden;
         }
 
         .laudo-container {
-          flex: 1; /* Ocupa exatamente a altura fornecida pelo wrapper (os 96vh) */
+          flex: 1; /* Estica automaticamente preenchendo o espaço exato, sem vazar */
           width: 100%;
           max-width: 100%;
           margin: 0 !important;
