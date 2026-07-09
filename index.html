@@ -442,60 +442,67 @@
       }
 
       /* =========================================
-           5. MODO IMPRESSÃO (PERFEIÇÃO A4 EM PC E TABLET)
+           5. MODO IMPRESSÃO (TÁTICA AGRESSIVA ANTI-PÁGINA 2)
            ========================================= */
       @media print {
         @page {
           size: A4 portrait;
-          margin: 0; /* Zera a margem do sistema para matar o cabeçalho/rodapé do Android */
+          margin: 0; /* Mata o cabeçalho/rodapé do Android pela raiz */
         }
 
+        /* 1. Reset Total: Zera TUDO que não seja o laudo em si */
         html,
-        body {
-          background: white;
+        body,
+        .container {
+          background: white !important;
           margin: 0 !important;
           padding: 0 !important;
           width: 100% !important;
-          height: 100% !important; /* Trava altura máxima */
-          overflow: hidden !important; /* CORTA qualquer pixel que tente criar a página 2 */
+          max-width: 100% !important;
+          min-height: 0 !important; /* Desabilita min-heights do body */
         }
 
-        .container {
-          max-width: 100% !important;
-          width: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
+        /* 2. Força o Ocultamento de TUDO o que possa vazar */
+        body {
+          overflow: hidden !important;
         }
 
         .no-print {
           display: none !important;
         }
 
+        /* 3. Limpa o container do relatório de bordas/sombras/paddings originais */
         #report-section.card {
           border: none !important;
           box-shadow: none !important;
           padding: 0 !important;
           margin: 0 !important;
+          border-radius: 0 !important;
+          display: block !important; /* Garante que é bloco */
         }
 
+        /* 4. A Caixa de Desenho Principal */
         .laudo-wrapper {
           width: 100%;
-          /* A folha A4 tem 297mm. Cravamos em 295mm e usamos padding para simular a margem */
-          height: 295mm;
-          padding: 8mm; /* Margem de segurança interna para não cortar na borda da folha */
+          /* Reduzi de 295 para 275mm. Muita margem de segurança na altura 
+             para a HP não empurrar nada. */
+          height: 275mm;
+          max-height: 275mm;
+          padding: 10mm; /* A nossa margem de segurança interna */
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
-          overflow: hidden;
+          overflow: hidden !important; /* Corta sobras */
+          margin-bottom: 0 !important; /* Garante que não empurra em baixo */
         }
 
+        /* 5. O Conteúdo do Laudo */
         .laudo-container {
-          flex: 1; /* Estica automaticamente preenchendo o espaço exato, sem vazar */
+          flex: 1; /* Estica apenas até o limite do wrapper */
           width: 100%;
-          max-width: 100%;
           margin: 0 !important;
           page-break-inside: avoid !important;
-          page-break-after: avoid !important;
+          page-break-after: avoid !important; /* Tenta proibir quebras */
         }
 
         * {
