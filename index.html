@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laudo Técnico - Qualidade do Fluido (AS502)</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+      /* =========================================
+           1. VARIÁVEIS GERAIS (Paleta de Cores AUTOCAR BS)
+           ========================================= */
+      :root {
+        --bg-body: rgb(233, 233, 233);
+        --bg-card: #ffffff;
+        --bg-input: #f3f4f6;
+        --border: #d1d5db;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --primary: #f10707; /* Vermelho padrão AUTOCAR */
+
+        /* Cores dos Diagnósticos */
+        --color-ok: #10b981;
+        --color-warn: #f59e0b;
+        --color-danger: #ef4444;
+      }
+
+      /* =========================================
+           2. RESET E FONTES
+           ========================================= */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", "Roboto", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 850px;
+      }
+
+      /* =========================================
+           3. CABEÇALHO PADRÃO AUTOCAR E FORMULÁRIO
+           ========================================= */
+      .header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .header img {
+        max-width: 220px;
+        height: auto;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border-radius: 8px;
+        border-top: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        border-left: 3px solid var(--primary);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: bold;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 15px;
+      }
+
+      .card-title i {
+        color: var(--primary);
+        font-size: 1.5rem;
+      }
+
+      /* MUDANÇA 1: Ajuste do Grid para responsividade. O grid muda de 1 para 2 colunas apenas se a tela for maior que 600px */
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Padrão Mobile (1 coluna) */
+        gap: 15px;
+      }
+
+      @media (min-width: 600px) {
+        .form-grid {
+          grid-template-columns: 1fr 1fr; /* Tablets e Desktops (2 colunas) */
+        }
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-control {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .form-control label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-weight: bold;
+      }
+
+      .form-control input,
+      .form-control textarea {
+        width: 100%;
+        padding: 12px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        outline: none;
+        text-transform: uppercase;
+        font-family: inherit;
+        transition: 0.2s;
+        font-weight: 500;
+      }
+
+      .form-control textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .form-control input:focus,
+      .form-control textarea:focus {
+        border-color: var(--primary);
+      }
+
+      .options-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .opt {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 15px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        cursor: pointer;
+        user-select: none;
+        transition: 0.2s;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+
+      .opt:hover {
+        border-color: var(--primary);
+      }
+      .opt input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
+      /* MUDANÇA 2: Ajuste dos botões no mobile para não ficarem espremidos lado a lado */
+      .actions {
+        display: flex;
+        flex-direction: column; /* Padrão Mobile: Um botão em cima do outro */
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      @media (min-width: 600px) {
+        .actions {
+          flex-direction: row; /* Tablets e Desktop: Lado a lado */
+        }
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: 6px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+        transition: 0.2s;
+        width: 100%;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        filter: brightness(0.8);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+      }
+      .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .btn-success {
+        background: #10b981;
+        color: white;
+      }
+      .btn-success:hover {
+        background: #059669;
+      }
+
+      /* =========================================
+           4. LAUDO TÉCNICO (O VISUAL BRUTALISTA DO CHECKLIST PARA IMPRESSÃO)
+           ========================================= */
+      #report-section {
+        display: none;
+      }
+
+      .laudo-wrapper {
+        background: #fff;
+        color: #000;
+        font-family: "Arial", sans-serif;
+        width: 100%;
+        overflow-x: auto; /* MUDANÇA 3: Se a tela for muito fina (celular), permite arrastar pro lado no laudo gerado, pra não amassar as caixas */
+      }
+
+      /* O Quadrado Mestre que envolve tudo */
+      .laudo-container {
+        border: 2px solid #000;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Aumentado para dar mais respiro */
+        min-height: 265mm; /* Altura exata para preencher a folha A4 */
+      }
+
+      .laudo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 20px;
+      }
+
+      /* Prioridade no link do github oficial da autocar. Fallback pra imagem crua do placeholder se der erro */
+      .laudo-header img {
+        max-width: 260px; /* Logo consideravelmente maior na impressão */
+        height: auto;
+      }
+
+      .laudo-header h1 {
+        font-size: 1.4rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 1px;
+        color: #000;
+        text-align: right;
+      }
+
+      /* Caixas padrão Checklist */
+      .box {
+        border: 1px solid #000;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .box-header {
+        background: #e5e5e5;
+        padding: 6px 10px;
+        font-weight: 900;
+        border-bottom: 1px solid #000;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #000;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .box-content {
+        display: flex;
+      }
+
+      .box-content-column {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+      }
+
+      /* Colunas de Dados */
+      .col {
+        flex: 1;
+        padding: 8px 10px;
+        border-right: 1px solid #000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .col:last-child {
+        border-right: none;
+      }
+
+      .label {
+        font-weight: 900;
+        font-size: 0.65rem;
+        color: #000;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+
+      .value {
+        font-size: 1rem;
+        text-transform: uppercase;
+        font-weight: 900;
+        color: #000;
+        line-height: 1;
+      }
+
+      /* Colunas Especiais (Resultados Máquina) */
+      .col-result {
+        flex: 1;
+        padding: 30px; /* Mais preenchimento para encorpar a folha */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px solid #000;
+      }
+      .col-result:last-child {
+        border-right: none;
+      }
+
+      .resultado-destaque {
+        display: flex;
+        justify-content: center;
+        align-items: baseline;
+        margin-top: 10px;
+      }
+      .numero-gigante {
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1;
+      }
+      .unidade-medida {
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-left: 3px;
+      }
+
+      /* Caixa de Diagnóstico Específica */
+      .diag-box-content {
+        padding: 25px 20px;
+        min-height: 120px;
+      }
+      .diag-title {
+        font-size: 1.2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .diag-text {
+        font-size: 0.95rem;
+        text-align: justify;
+        text-transform: uppercase;
+        font-weight: 900;
+        color: #222;
+        line-height: 1.5;
+      }
+
+      /* Lista de Verificação Visual */
+      .check-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 5px;
+      }
+      .check-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+      .check-group {
+        font-family: monospace;
+        font-weight: bold;
+        font-size: 0.8rem;
+        width: 120px;
+        flex-shrink: 0;
+      }
+      .check-text {
+        font-size: 0.8rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #333;
+      }
+
+      /* Assinaturas (Apenas do Técnico) */
+      .signatures-box {
+        display: flex;
+        justify-content: center;
+        margin-top: auto; /* O segredo: empurra a assinatura lá pro rodapé da folha! */
+        padding: 20px 15px 10px 15px;
+      }
+      .sign-line {
+        width: 50%;
+        border-top: 1.5px solid #000;
+        text-align: center;
+        padding-top: 5px;
+        font-size: 0.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #000;
+      }
+
+      /* =========================================
+           5. MODO IMPRESSÃO (PERFEIÇÃO A4)
+           ========================================= */
+      @media print {
+        @page {
+          size: A4 portrait;
+          margin: 10mm;
+        }
+        body {
+          background: white;
+          padding: 0;
+        }
+        .container {
+          max-width: 100%;
+          width: 100%;
+        }
+        .no-print {
+          display: none !important;
+        }
+
+        #report-section.card {
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- CABEÇALHO AUTOCAR (TELA INICIAL) -->
+      <header class="header no-print">
+        <img
+          src="img/logo-preta.png"
+          onerror="
+            this.src =
+              'https://placehold.co/400x120/white/f10707?text=AUTOCAR+BS&font=Montserrat'
+          "
+          alt="Autocar BS"
+        />
+      </header>
+
+      <!-- TELA 1: FORMULÁRIO DE ENTRADA -->
+      <main id="form-section" class="card no-print">
+        <div class="card-title">
+          <i class="ph ph-drop"></i> Registro de Teste de Fluido (AS505)
+        </div>
+
+        <form id="oil-form">
+          <div class="form-grid">
+            <div class="form-control" style="grid-column: 1 / -1">
+              <label for="veiculo">Veículo / Cliente</label>
+              <input
+                type="text"
+                id="veiculo"
+                required
+                placeholder="Ex: COROLLA / JOÃO"
+              />
+            </div>
+
+            <div class="form-control">
+              <label for="placa">Placa do Veículo</label>
+              <input
+                type="text"
+                id="placa"
+                required
+                placeholder="ABC-1234"
+                maxlength="8"
+              />
+            </div>
+
+            <div class="form-control">
+              <label for="km">Quilometragem (KM)</label>
+              <input type="text" id="km" required placeholder="Ex: 85.000" />
+            </div>
+          </div>
+
+          <div class="card-title" style="margin-top: 30px">
+            <i class="ph ph-gauge"></i> Dados da Máquina
+          </div>
+
+          <div class="form-grid">
+            <div class="form-control">
+              <label for="temperatura">Temperatura Medida (°C)</label>
+              <input
+                type="number"
+                id="temperatura"
+                required
+                placeholder="Ex: 45"
+                step="0.1"
+              />
+            </div>
+
+            <div class="form-control">
+              <label for="qualidade">Qualidade do Óleo (%)</label>
+              <input
+                type="number"
+                id="qualidade"
+                required
+                placeholder="Ex: 85"
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+
+          <!-- NOVA SEÇÃO: CHECKLIST VISUAL PARA ENCHER O LAUDO -->
+          <div class="card-title" style="margin-top: 30px">
+            <i class="ph ph-eye"></i> Inspeção Visual e Física (Complementar)
+          </div>
+
+          <div class="form-grid">
+            <div class="form-control full-width">
+              <label>Vazamentos visíveis no Cárter/Transmissão?</label>
+              <div class="options-row">
+                <label class="opt"
+                  ><input type="radio" name="chk_vazamento" value="SIM" />
+                  SIM</label
+                >
+                <label class="opt"
+                  ><input
+                    type="radio"
+                    name="chk_vazamento"
+                    value="NÃO"
+                    checked
+                  />
+                  NÃO</label
+                >
+              </div>
+            </div>
+            <div class="form-control full-width">
+              <label>Odor característico de queimado/fricção no fluido?</label>
+              <div class="options-row">
+                <label class="opt"
+                  ><input type="radio" name="chk_odor" value="SIM" /> SIM</label
+                >
+                <label class="opt"
+                  ><input type="radio" name="chk_odor" value="NÃO" checked />
+                  NÃO</label
+                >
+              </div>
+            </div>
+            <div class="form-control full-width">
+              <label>Presença de partículas/limalha excessiva no óleo?</label>
+              <div class="options-row">
+                <label class="opt"
+                  ><input type="radio" name="chk_limalha" value="SIM" />
+                  SIM</label
+                >
+                <label class="opt"
+                  ><input type="radio" name="chk_limalha" value="NÃO" checked />
+                  NÃO</label
+                >
+              </div>
+            </div>
+
+            <div class="form-control full-width" style="margin-top: 10px">
+              <label for="observacoes">Observações Adicionais do Técnico</label>
+              <textarea
+                id="observacoes"
+                placeholder="Digite aqui se houver trepidação, trancos na troca de marcha relatados pelo cliente, etc..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="ph ph-file-text"></i> Gerar Laudo Técnico Completo
+            </button>
+          </div>
+        </form>
+      </main>
+
+      <!-- TELA 2: RELATÓRIO / LAUDO TÉCNICO (BLOCO BRUTALISTA) -->
+      <main id="report-section" class="card">
+        <div
+          class="actions no-print"
+          style="
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+          "
+        >
+          <button
+            onclick="voltarFormulario()"
+            class="btn btn-secondary"
+            style="flex: 1"
+          >
+            <i class="ph ph-arrow-left"></i> Editar
+          </button>
+          <button
+            onclick="imprimirLaudo()"
+            class="btn btn-success"
+            style="flex: 2"
+          >
+            <i class="ph ph-printer"></i> Imprimir Laudo Oficial
+          </button>
+        </div>
+
+        <!-- ÁREA DO LAUDO TÉCNICO -->
+        <div class="laudo-wrapper">
+          <!-- CONTAINER MESTRE (A borda preta grossa em volta de tudo) -->
+          <div class="laudo-container">
+            <!-- CABEÇALHO OFICIAL (Logo + Título) -->
+            <div class="laudo-header">
+              <!-- Imagem Oficial -->
+              <img
+                src="img/logo-preta.png"
+                onerror="
+                  this.src =
+                    'https://placehold.co/400x120/white/f10707?text=AUTOCAR+BS&font=Montserrat'
+                "
+                alt="Autocar BS"
+              />
+              <h1>LAUDO TÉCNICO DE FLUIDO</h1>
+            </div>
+
+            <!-- Caixa 1: Dados -->
+            <div class="box">
+              <div class="box-header">IDENTIFICAÇÃO DO TESTE</div>
+              <div class="box-content">
+                <div class="col" style="flex: 1.5">
+                  <span class="label">VEÍCULO / CLIENTE</span>
+                  <span class="value" id="res-veiculo">--</span>
+                </div>
+                <div class="col">
+                  <span class="label">PLACA</span>
+                  <span class="value" id="res-placa">--</span>
+                </div>
+                <div class="col">
+                  <span class="label">DATA DO TESTE</span>
+                  <span class="value" id="res-data">--</span>
+                </div>
+                <div class="col">
+                  <span class="label">QUILOMETRAGEM</span>
+                  <span class="value" id="res-km">--</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Caixa 2: Resultados da Máquina -->
+            <div class="box">
+              <div class="box-header">
+                RESULTADO ANALISE OLEO DE CAMBIO (SCANNER AS502)
+              </div>
+              <div class="box-content" style="padding: 0">
+                <div class="col-result">
+                  <span class="label">TEMPERATURA MEDIDA</span>
+                  <div class="resultado-destaque" style="color: #333">
+                    <span class="numero-gigante" id="res-temperatura">--</span
+                    ><span class="unidade-medida">°C</span>
+                  </div>
+                </div>
+                <div class="col-result">
+                  <span class="label"
+                    >QUALIDADE DO FLUIDO (TRANSMITÂNCIA ÓPTICA)</span
+                  >
+                  <div class="resultado-destaque" id="res-qualidade-container">
+                    <span class="numero-gigante" id="res-qualidade">--</span
+                    ><span class="unidade-medida">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Caixa 3: Checklist Físico Complementar -->
+            <div class="box">
+              <div class="box-header">
+                INSPEÇÃO FÍSICA E VISUAL (COMPLEMENTAR)
+              </div>
+              <div class="box-content-column">
+                <div class="check-row">
+                  <span class="check-group" id="res-chk-vazamento"
+                    >[ ] SIM [ ] NÃO</span
+                  >
+                  <span class="check-text"
+                    >| DETECTADO VAZAMENTOS VISÍVEIS NO CÁRTER /
+                    TRANSMISSÃO?</span
+                  >
+                </div>
+                <div class="check-row">
+                  <span class="check-group" id="res-chk-odor"
+                    >[ ] SIM [ ] NÃO</span
+                  >
+                  <span class="check-text"
+                    >| DETECTADO ODOR CARACTERÍSTICO DE QUEIMADO / FRICÇÃO NO
+                    FLUIDO?</span
+                  >
+                </div>
+                <div class="check-row">
+                  <span class="check-group" id="res-chk-limalha"
+                    >[ ] SIM [ ] NÃO</span
+                  >
+                  <span class="check-text"
+                    >| DETECTADA PRESENÇA DE PARTÍCULAS SÓLIDAS / LIMALHA NO
+                    ÓLEO?</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Caixa 4: Diagnóstico -->
+            <div class="box">
+              <div class="box-header">
+                DIAGNÓSTICO TÉCNICO / RESOLUÇÃO ELETRÔNICA
+              </div>
+              <div class="diag-box-content">
+                <div class="diag-title" id="res-diagnostico-titulo">--</div>
+                <div class="diag-text" id="res-diagnostico-texto">--</div>
+              </div>
+            </div>
+
+            <!-- Caixa 5: Observações Manuais -->
+            <div class="box" id="box-observacoes" style="display: none">
+              <div class="box-header">OBSERVAÇÕES DO TÉCNICO RESPONSÁVEL</div>
+              <div class="box-content-column" style="min-height: 50px">
+                <span
+                  class="value"
+                  id="res-observacoes"
+                  style="font-size: 0.8rem; text-transform: uppercase"
+                ></span>
+              </div>
+            </div>
+
+            <!-- Caixa 6: Tabela de Parâmetros -->
+            <div class="box">
+              <div
+                class="box-header"
+                style="text-align: center; font-size: 0.6rem"
+              >
+                REFERÊNCIA DE PARÂMETROS DA MÁQUINA DE TESTE (AS502)
+              </div>
+              <div class="box-content" style="padding: 0">
+                <div
+                  class="col"
+                  style="text-align: center; padding: 4px; border-bottom: none"
+                >
+                  <span class="label" style="margin: 0">61% A 100%</span
+                  ><span
+                    style="font-size: 0.6rem; font-weight: bold; color: #10b981"
+                    >NORMAL (OK)</span
+                  >
+                </div>
+                <div
+                  class="col"
+                  style="text-align: center; padding: 4px; border-bottom: none"
+                >
+                  <span class="label" style="margin: 0">31% A 60%</span
+                  ><span
+                    style="font-size: 0.6rem; font-weight: bold; color: #f59e0b"
+                    >ALERTA (DESGASTADO)</span
+                  >
+                </div>
+                <div
+                  class="col"
+                  style="text-align: center; padding: 4px; border-bottom: none"
+                >
+                  <span class="label" style="margin: 0">30% OU MENOS</span
+                  ><span
+                    style="font-size: 0.6rem; font-weight: bold; color: #ef4444"
+                    >REPLACE (SUBSTITUIR)</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Assinatura (Apenas do Técnico) -->
+            <div class="signatures-box">
+              <div class="sign-line">ASSINATURA DO TÉCNICO RESPONSÁVEL</div>
+            </div>
+          </div>
+          <!-- Fim do Container Mestre -->
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // MÁSCARAS
+      const inputPlaca = document.getElementById("placa");
+      inputPlaca.addEventListener("input", function (e) {
+        let valor = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (valor.length > 3) {
+          valor = valor.substring(0, 3) + "-" + valor.substring(3, 7);
+        }
+        e.target.value = valor.substring(0, 8);
+      });
+
+      const inputKm = document.getElementById("km");
+      inputKm.addEventListener("input", function (e) {
+        let valor = e.target.value.replace(/\D/g, "");
+        valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+        e.target.value = valor;
+      });
+
+      // LÓGICA DO FORMULÁRIO
+      document
+        .getElementById("oil-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const veiculo = document
+            .getElementById("veiculo")
+            .value.toUpperCase();
+          const placa = document.getElementById("placa").value;
+          const km = document.getElementById("km").value;
+          const temperatura = document.getElementById("temperatura").value;
+          const qualidade = document.getElementById("qualidade").value;
+          const observacoes = document
+            .getElementById("observacoes")
+            .value.trim();
+
+          const chkVazamento = document.querySelector(
+            'input[name="chk_vazamento"]:checked',
+          ).value;
+          const chkOdor = document.querySelector(
+            'input[name="chk_odor"]:checked',
+          ).value;
+          const chkLimalha = document.querySelector(
+            'input[name="chk_limalha"]:checked',
+          ).value;
+
+          const hoje = new Date();
+          const dataStr = `${String(hoje.getDate()).padStart(2, "0")}/${String(hoje.getMonth() + 1).padStart(2, "0")}/${hoje.getFullYear()}`;
+
+          document.getElementById("res-veiculo").innerText = veiculo;
+          document.getElementById("res-placa").innerText = placa;
+          document.getElementById("res-km").innerText = km + " KM";
+          document.getElementById("res-temperatura").innerText = temperatura;
+          document.getElementById("res-qualidade").innerText = qualidade;
+          document.getElementById("res-data").innerText = dataStr;
+
+          document.getElementById("res-chk-vazamento").innerHTML =
+            chkVazamento === "SIM"
+              ? "[X] SIM &nbsp; [ ] NÃO"
+              : "[ ] SIM &nbsp; [X] NÃO";
+          document.getElementById("res-chk-odor").innerHTML =
+            chkOdor === "SIM"
+              ? "[X] SIM &nbsp; [ ] NÃO"
+              : "[ ] SIM &nbsp; [X] NÃO";
+          document.getElementById("res-chk-limalha").innerHTML =
+            chkLimalha === "SIM"
+              ? "[X] SIM &nbsp; [ ] NÃO"
+              : "[ ] SIM &nbsp; [X] NÃO";
+
+          if (observacoes.length > 0) {
+            document.getElementById("res-observacoes").innerText = observacoes;
+            document.getElementById("box-observacoes").style.display = "flex";
+          } else {
+            document.getElementById("box-observacoes").style.display = "none";
+          }
+
+          const qualContainer = document.getElementById(
+            "res-qualidade-container",
+          );
+          const diagTitulo = document.getElementById("res-diagnostico-titulo");
+          const diagTexto = document.getElementById("res-diagnostico-texto");
+
+          // --- LÓGICA DE DIAGNÓSTICO AVANÇADO (CRUZAMENTO DE DADOS) ---
+
+          // REGRA DE OURO (TRAVA DE SEGURANÇA FÍSICA):
+          // Se o mecânico detectou LIMALHA/PARTÍCULAS ou ODOR DE QUEIMADO,
+          // a situação é CRÍTICA, independentemente do que a máquina (luz) disse.
+          if (chkLimalha === "SIM" || chkOdor === "SIM") {
+            qualContainer.style.color = "var(--color-danger)";
+            diagTitulo.innerText =
+              "STATUS: REPLACE (SUBSTITUIR) - CONTAMINAÇÃO FÍSICA DETECTADA";
+            diagTitulo.style.color = "var(--color-danger)";
+
+            let motivoAgravante = [];
+            if (chkLimalha === "SIM")
+              motivoAgravante.push("PRESENÇA DE PARTÍCULAS METÁLICAS/SÓLIDAS");
+            if (chkOdor === "SIM")
+              motivoAgravante.push("ODOR DE FRICÇÃO/QUEIMA");
+
+            diagTexto.innerText = `ATENÇÃO: APESAR DO ÍNDICE DE TRANSPARÊNCIA ÓPTICA (${qualidade}%), A INSPEÇÃO FÍSICA DETECTOU ${motivoAgravante.join(" E ")}. A CAPACIDADE DE LUBRIFICAÇÃO E PROTEÇÃO CONTRA ATRITO FOI COMPROMETIDA. AÇÃO REQUERIDA: SUBSTITUIÇÃO IMEDIATA DO FLUIDO E FILTRO PARA MITIGAR RISCO DE FALHA CATASTRÓFICA DOS COMPONENTES INTERNOS DA TRANSMISSÃO.`;
+
+            // SE NÃO HOUVER CONTAMINAÇÃO FÍSICA GRAVE, SEGUE A REGRA DA PORCENTAGEM DA MÁQUINA:
+          } else if (qualidade >= 61) {
+            qualContainer.style.color = "var(--color-ok)";
+            diagTitulo.innerText =
+              "STATUS: NORMAL (OK) - PARÂMETROS PRESERVADOS";
+            diagTitulo.style.color = "var(--color-ok)";
+            diagTexto.innerText =
+              "ÍNDICE DE TRANSMITÂNCIA ÓPTICA DENTRO DA TOLERÂNCIA ESPECIFICADA PELO FABRICANTE. FLUIDO ISENTO DE CARBONIZAÇÃO SEVERA. AS PROPRIEDADES VISCOSIMÉTRICAS E QUÍMICAS (ADITIVAÇÃO) APRESENTAM-SE ESTÁVEIS. NENHUMA INTERVENÇÃO CORRETIVA É EXIGIDA NESTE MOMENTO.";
+          } else if (qualidade >= 31) {
+            qualContainer.style.color = "var(--color-warn)";
+            diagTitulo.innerText =
+              "STATUS: ALERTA - INÍCIO DE DEGRADAÇÃO / OXIDAÇÃO";
+            diagTitulo.style.color = "var(--color-warn)";
+            diagTexto.innerText =
+              "ANÁLISE DETECTOU QUEDA NA TRANSPARÊNCIA DO FLUIDO, INDICANDO PRINCÍPIO DE SATURAÇÃO POR PARTÍCULAS EM SUSPENSÃO E PERDA DE CARGA DE ADITIVOS (OXIDAÇÃO TÉRMICA). AÇÃO REQUERIDA: PROGRAMAR SUBSTITUIÇÃO PREVENTIVA A CURTO PRAZO PARA EVITAR DESGASTE PREMATURO DO CONJUNTO HIDRÁULICO E PACOTES DE EMBREAGEM.";
+          } else {
+            qualContainer.style.color = "var(--color-danger)";
+            diagTitulo.innerText =
+              "STATUS: REPLACE (SUBSTITUIR) - FLUIDO SATURADO / FADIGADO";
+            diagTitulo.style.color = "var(--color-danger)";
+            diagTexto.innerText =
+              "OPERAÇÃO FORA DOS PARÂMETROS DE SEGURANÇA. FLUIDO TOTALMENTE DEGRADADO (OPACO), COM ALTO ÍNDICE DE CARBONIZAÇÃO E PERDA COMPLETA DO PODER DE LUBRIFICAÇÃO E DISSIPAÇÃO DE CALOR. AÇÃO REQUERIDA: SUBSTITUIÇÃO IMEDIATA RECOMENDADA PARA PREVENIR PATINAÇÃO, TRANCOS HIDRÁULICOS E COLAPSO TOTAL DA TRANSMISSÃO.";
+          }
+
+          document.getElementById("form-section").style.display = "none";
+          document.getElementById("report-section").style.display = "block";
+        });
+
+      function voltarFormulario() {
+        document.getElementById("report-section").style.display = "none";
+        document.getElementById("form-section").style.display = "block";
+      }
+
+      function imprimirLaudo() {
+        setTimeout(() => {
+          window.print();
+        }, 100);
+      }
+    </script>
+  </body>
+</html>
