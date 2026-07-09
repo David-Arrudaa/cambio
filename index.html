@@ -452,7 +452,7 @@
         @page {
           size: A4 portrait;
           margin: 5mm;
-        } /* Margem reduzida para evitar quebra */
+        }
         body {
           background: white;
           padding: 0;
@@ -461,6 +461,8 @@
         .container {
           max-width: 100%;
           width: 100%;
+          margin: 0;
+          padding: 0;
         }
         .no-print {
           display: none !important;
@@ -473,9 +475,12 @@
           margin: 0 !important;
         }
 
-        /* Trava o contêiner em 1 página, usando medidas relativas à janela de impressão */
+        /* Trava o contêiner em 1 página com folga para os cabeçalhos do Tablet/Android */
         .laudo-container {
-          min-height: 95vh;
+          height: 250mm; /* Altura fixa super segura para não gerar página 2 */
+          min-height: auto;
+          max-height: 250mm;
+          gap: 12px; /* Reduz um pouquinho o espaço entre as caixas para caber tudo na folha */
         }
 
         * {
@@ -505,32 +510,42 @@
           <i class="ph ph-drop"></i> Registro de Teste de Fluido (AS505)
         </div>
 
-        <form id="oil-form">
+        <form id="oil-form" autocomplete="off">
           <div class="form-grid">
             <div class="form-control" style="grid-column: 1 / -1">
               <label for="veiculo">Veículo / Cliente</label>
+              <!-- Adicionado autocomplete="nope" para forçar o Chrome a não sugerir -->
               <input
                 type="text"
                 id="veiculo"
                 required
                 placeholder="Ex: COROLLA / JOÃO"
+                autocomplete="nope"
               />
             </div>
 
             <div class="form-control">
               <label for="placa">Placa do Veículo</label>
+              <!-- Adicionado autocomplete="nope" para forçar o Chrome a não sugerir -->
               <input
                 type="text"
                 id="placa"
                 required
                 placeholder="ABC-1234"
                 maxlength="8"
+                autocomplete="nope"
               />
             </div>
 
             <div class="form-control">
               <label for="km">Quilometragem (KM)</label>
-              <input type="text" id="km" required placeholder="Ex: 85.000" />
+              <input
+                type="text"
+                id="km"
+                required
+                placeholder="Ex: 85.000"
+                autocomplete="nope"
+              />
             </div>
           </div>
 
