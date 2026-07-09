@@ -455,8 +455,9 @@
           background: white;
           padding: 0;
           margin: 0;
-          height: 100%; /* Força o documento a ter o tamanho exato de 1 folha */
-          overflow: hidden; /* CORTA qualquer sobra fantasma que ative a página 2 */
+          height: 100vh; /* Trava a altura máxima na viewport */
+          max-height: 100vh;
+          overflow: hidden !important; /* Força o corte de qualquer sobra invisível */
         }
 
         .container {
@@ -483,11 +484,11 @@
 
         /* Trava o contêiner em 1 página */
         .laudo-container {
-          height: 100%; /* Usa 100% da área útil disponível (após as margens do @page) */
-          max-height: 285mm; /* Limite de segurança rígido */
-          min-height: auto; /* Remove regras antigas conflitantes */
+          height: 100%;
+          max-height: 275mm; /* Limite de segurança bem folgado para A4 (que tem 297mm) */
           page-break-inside: avoid;
-          page-break-after: avoid; /* Proíbe gerar página depois deste container */
+          page-break-after: avoid;
+          margin-bottom: 0 !important; /* Remove qualquer margem extra no final */
         }
 
         * {
